@@ -1,4 +1,6 @@
-﻿namespace DemoSat16 {
+﻿using DemoSat16.Event_Data;
+
+namespace DemoSat16.Utility {
     //The flight computer is our very simple brain to our payload... It sits around waiting for stuff to execute and then does so. 
     //We'll look at an example of this later.
     public class FlightComputer {

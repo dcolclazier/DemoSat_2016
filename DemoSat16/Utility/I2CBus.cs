@@ -2,7 +2,7 @@
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 
-namespace DemoSat16 {
+namespace DemoSat16.Utility {
     public class I2CBus : IDisposable
     {
         //Singleton OOP Model

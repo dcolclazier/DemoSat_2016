@@ -3,7 +3,7 @@ using System.Collections;
 using System.Threading;
 using Microsoft.SPOT;
 
-namespace DemoSat16 {
+namespace DemoSat16.Utility {
     public static class ThreadPool {
 
         //This is a list of all of the running threads in our pool - each thread does something different 

@@ -32,16 +32,20 @@
   </PropertyGroup>
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
-    <Compile Include="Event Stuff\BNO055.cs" />
-    <Compile Include="Event Stuff\I2CBus.cs" />
-    <Compile Include="FlightComputer.cs" />
-    <Compile Include="Event Stuff\FlightEventType.cs" />
-    <Compile Include="Event Stuff\GyroData.cs" />
-    <Compile Include="Event Stuff\IEventData.cs" />
+    <Compile Include="Event Subscriptions\GyroEventTester.cs" />
+    <Compile Include="Work Items\GyroUpdater.cs" />
+    <Compile Include="Sensor Libs\BNO055.cs" />
+    <Compile Include="Utility\Quaternion.cs" />
+    <Compile Include="Utility\Vector.cs" />
+    <Compile Include="Utility\I2CBus.cs" />
+    <Compile Include="Utility\FlightComputer.cs" />
+    <Compile Include="Utility\FlightEventType.cs" />
+    <Compile Include="Event Data\GyroData.cs" />
+    <Compile Include="Event Data\IEventData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ThreadPool\ThreadPool.cs" />
-    <Compile Include="ThreadPool\WorkItem.cs" />
+    <Compile Include="Utility\ThreadPool.cs" />
+    <Compile Include="Utility\WorkItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.SPOT.Hardware" />
@@ -54,4 +58,5 @@
     <Reference Include="System" />
     <Reference Include="GoBus" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
