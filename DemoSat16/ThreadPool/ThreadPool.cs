@@ -6,24 +6,28 @@ using Microsoft.SPOT;
 namespace DemoSat16 {
     public static class ThreadPool {
 
-        //This is a list of all of the running threads in our pool
+        //This is a list of all of the running threads in our pool - each thread does something different 
+        //at effectively the same time.
         private static readonly ArrayList AvailableThreads = new ArrayList();
 
-        //this is a queue (First in, first out) of work items the flight computer submitted for execution.
+        //this is a queue (First in, first out, like a DMV line) of work items the flight computer 
+        // submitted for execution.
         private static readonly Queue PendingWorkItems = new Queue();
 
-        //The maximum number of threads our threadpool is allowed to spin up.
+        //The maximum number of threads our threadpool is allowed to have doing work at any given time..
         private const int MAX_THREADS = 3;
 
-        
+        // This is the method the flight computer calls when you, the programmer, execute a work item.
         static public void QueueWorkItem(WorkItem thingToQueue) {
-            //first, add the work item to the queue of work items (if something came before, it should run first)
+            //first, add the work item to the queue of work items (if something came before, it comes first)
             lock (locker) {
                 PendingWorkItems.Enqueue(thingToQueue);
             }
 
-            //If we haven't reached our MAX_THREADS yet, go ahead and create one... Note, this will only run the first MAX_THREADS (3) times
-            //we execute a work item in the flight computer - then, we'll have our 3 threads, and this if block will be skipped.
+            //If we haven't reached our MAX_THREADS yet, go ahead and create one... 
+            //    Note" this will only run the first MAX_THREADS (3) times we execute 
+            //    a work item in the flight computer - then, we'll have our 3 threads, 
+            //    and this if block will be skipped.
             if (AvailableThreads.Count < MAX_THREADS) {
                 var thread = new Thread(ThreadWorker);
                 AvailableThreads.Add(thread);
@@ -78,6 +82,7 @@ namespace DemoSat16 {
                     //We finished the work item, and triggered its event. Now, we need to queue the work item again if it was marked as persistent...
                     if (nextWorkItemToExecute.IsPersistent) QueueWorkItem(nextWorkItemToExecute);
                 }
+                //If something went wrong, stick it in the debug - don't crash the program.
                 catch (Exception e) {
                     Debug.Print("ThreadPool: Unhandled error executing action - " + e.Message + e.InnerException);
                     Debug.Print("StackTrace: " + e.StackTrace);
