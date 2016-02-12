@@ -13,7 +13,7 @@ namespace DemoSat16.Work_Items {
         private readonly GyroData _gyroData;
 
         //Our work item - in this case, it will be UpdateGyro() below.
-        private readonly WorkItem _worker;
+        private readonly WorkItem _workItem;
 
         //A reference to the sensor that has the gyroscope on it - need it to get updates!
         private readonly Bno055 _sensor;
@@ -24,13 +24,23 @@ namespace DemoSat16.Work_Items {
             _gyroData = new GyroData();
 
             //create our work item!
-            _worker = new WorkItem(UpdateGyro, true, FlightEventType.Gyro, _gyroData);
+            _workItem = new WorkItem(UpdateGyro, true, FlightEventType.Gyro, _gyroData);
         }
 
         //running Start() will start the GyroUpdater by starting the 
         //    persistent work item we created in the constructor.
         public void Start() {
-            FlightComputer.Instance.Execute(_worker);
+            //we want the gyro updater to repeat itself, so setRepeat to true, just in case it 
+            //was turned off before now, disabling the repeat.
+            _workItem.SetRepeat(true);
+
+            //execute the work item.
+            FlightComputer.Instance.Execute(_workItem);
+        }
+
+        public void Stop() {
+            _workItem.SetRepeat(false); // this will mark the action as non-persistent, 
+                                        //   stopping it after the next run
         }
 
         //This is the workItem code! Notice how simple it is - it just updates the gyroData based on the

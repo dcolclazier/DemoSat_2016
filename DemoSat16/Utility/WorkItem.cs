@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using DemoSat16.Event_Data;
+using Microsoft.SPOT.Hardware;
 
 namespace DemoSat16.Utility {
 
@@ -17,7 +18,7 @@ namespace DemoSat16.Utility {
         public readonly IEventData EventData;
 
         //If IsPersistent is true, this WorkItem executed repeatedly, as if it was in a loop
-        public bool IsPersistent { get; }
+        public bool IsPersistent { get; private set; }
 
 
         //This is the constructor for a WorkItem - the only required parameter is the threadstart itself, but you can optionally add additional parameters if you need.
@@ -28,6 +29,10 @@ namespace DemoSat16.Utility {
             EventType = type;
             EventData = eventData;
             IsPersistent = isPersistent;
+        }
+
+        public void SetRepeat(bool persistence) {
+            IsPersistent = persistence;
         }
     }
 
