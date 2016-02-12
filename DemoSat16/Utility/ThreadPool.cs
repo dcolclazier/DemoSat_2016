@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.SPOT;
 
 namespace DemoSat16.Utility {
+    //manages our threads, and our queue of work items that need to be completed.
     public static class ThreadPool {
 
         //This is a list of all of the running threads in our pool - each thread does something different 
