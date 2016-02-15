@@ -12,6 +12,7 @@
     <NetMfTargetsBaseDir Condition="'$(NetMfTargetsBaseDir)'==''">$(MSBuildExtensionsPath32)\Microsoft\.NET Micro Framework\</NetMfTargetsBaseDir>
     <DeployDevice>Netduino</DeployDevice>
     <DeployTransport>USB</DeployTransport>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,6 +34,7 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Event Subscriptions\GyroEventTester.cs" />
+    <Compile Include="Utility\Servo.cs" />
     <Compile Include="Work Items\GyroUpdater.cs" />
     <Compile Include="Sensor Libs\BNO055.cs" />
     <Compile Include="Utility\Quaternion.cs" />
@@ -56,7 +58,6 @@
     <Reference Include="SecretLabs.NETMF.Hardware" />
     <Reference Include="SecretLabs.NETMF.Hardware.Netduino" />
     <Reference Include="System" />
-    <Reference Include="GoBus" />
   </ItemGroup>
   <ItemGroup />
 </Project>

@@ -22,7 +22,8 @@
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-namespace DemoSat16.Properties
+// ReSharper disable once CheckNamespace
+namespace System.Diagnostics
 {
     //  DebuggerBrowsableState states are defined as follows:
     //      Never       never show this element

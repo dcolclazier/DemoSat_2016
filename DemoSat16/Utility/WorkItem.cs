@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using DemoSat16.Event_Data;
-using Microsoft.SPOT.Hardware;
 
 namespace DemoSat16.Utility {
 

@@ -30,7 +30,7 @@ namespace DemoSat16.Event_Subscriptions {
             var data = eventData as GyroData;
 
             //if for some reason we didn't get any data, something went wrong - just get out of 
-            //here so we don't crash. bug - Might want to add exception handling here, Dave
+            //here so we don't crash. 
             if (data == null) return;
 
             //the data was gyro data, and it isn't null! Print it to the debug window.
