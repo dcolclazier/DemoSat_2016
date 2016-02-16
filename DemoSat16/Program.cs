@@ -86,10 +86,10 @@ namespace DemoSat16
             var leftAvg = (topLeft + bottomLeft)/2;
             var rightAvg = (bottomRight + topRight)/2;
 
-            var dZ = topAvg - bottomAvg;
+            var dY = topAvg - bottomAvg;
             var dX = leftAvg - rightAvg;
 
-            if (-1*Tolerance > dZ || dZ > Tolerance) {
+            if (-1*Tolerance > dY || dY > Tolerance) {
                 if (topAvg > bottomAvg) _tiltServo.Degree += 1;
                 else if (topAvg < bottomAvg) _tiltServo.Degree -= 1;
             }
