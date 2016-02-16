@@ -41,7 +41,7 @@ namespace DemoSat16.Utility
                 if (value < 0) value = 0;
                 if (Inverted) value = 180 - value;
                 _servoPin.Duration = (uint)map((long)value, 0, 180, range[0], range[1]);
-                Debug.Print(value.ToString());
+                //Debug.Print(value.ToString());
                 _servoPin.Start();
                 _last = value;
 

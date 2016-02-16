@@ -40,7 +40,7 @@ namespace DemoSat16
 
     public class LightTracker {
 
-        private const int Tolerance = 0;
+        private const double Tolerance = 0.1;
         private const int DelayTime = 10;
 
         private readonly WorkItem _trackAction;
@@ -52,6 +52,7 @@ namespace DemoSat16
         private readonly AnalogInput photoCellTR;
         private readonly AnalogInput photoCellBL;
         private readonly AnalogInput photoCellBR;
+        private readonly AnalogInput speedPot;
 
         public LightTracker(Cpu.PWMChannel panPin, Cpu.PWMChannel tiltPin, Cpu.AnalogChannel topLeftPhotocell, Cpu.AnalogChannel topRightPhotocell, Cpu.AnalogChannel bottomLeftPhotocell, Cpu.AnalogChannel bottomRightPhotocell) {
 
@@ -62,6 +63,8 @@ namespace DemoSat16
             photoCellTR = new AnalogInput(topRightPhotocell);
             photoCellBL = new AnalogInput(bottomLeftPhotocell);
             photoCellBR = new AnalogInput(bottomRightPhotocell);
+
+            speedPot = new AnalogInput(AnalogChannels.ANALOG_PIN_A5);
 
             _trackAction = new WorkItem(SearchForLight, true);
         }
@@ -77,9 +80,13 @@ namespace DemoSat16
         private void SearchForLight() {
 
             var topLeft = photoCellTL.Read();
+            //Debug.Print("topLeft " + topLeft);
             var topRight = photoCellTR.Read();
+            //Debug.Print("topRight: " + topRight);
             var bottomLeft = photoCellBL.Read();
+           // Debug.Print("bottomLeft: " + bottomLeft);
             var bottomRight = photoCellBR.Read();
+            //Debug.Print("bottomRight: " + bottomRight);
 
             var topAvg = (topLeft + topRight)/2;
             var bottomAvg = (bottomLeft + bottomRight)/2;
@@ -88,6 +95,8 @@ namespace DemoSat16
 
             var dY = topAvg - bottomAvg;
             var dX = leftAvg - rightAvg;
+            //Debug.Print("dX: " + dX);
+           // Debug.Print("dY: " + dY);
 
             if (-1*Tolerance > dY || dY > Tolerance) {
                 if (topAvg > bottomAvg) _tiltServo.Degree += 1;
@@ -97,10 +106,10 @@ namespace DemoSat16
                 if (leftAvg > rightAvg) _panServo.Degree += 1;
                 else if (leftAvg < rightAvg) _panServo.Degree -= 1;
             }
-
+            var test = (speedPot.Read()*10);
             _panServo.disengage();
             _tiltServo.disengage();
-            Thread.Sleep(DelayTime);
+            Thread.Sleep((int)test + 5);
         }
 
         
