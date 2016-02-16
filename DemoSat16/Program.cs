@@ -11,7 +11,7 @@ using SecretLabs.NETMF.Hardware.Netduino;
 namespace DemoSat16
 {
     public class Program {
-        private static Bno055 _bnoSensor;
+        //private static Bno055 _bnoSensor;
 
         public static void Main()
         {
@@ -23,8 +23,13 @@ namespace DemoSat16
            // var Gyro = new GyroUpdater(_bnoSensor);
             //Gyro.Start();
 
-            var driver = new MotorDriver(PWMChannels.PWM_PIN_D5,PWMChannels.PWM_PIN_D6);
-            driver.StartDemo();
+            var tracker = new LightTracker(PWMChannels.PWM_PIN_D6,PWMChannels.PWM_PIN_D5, 
+                                        Cpu.AnalogChannel.ANALOG_0, Cpu.AnalogChannel.ANALOG_1, 
+                                        Cpu.AnalogChannel.ANALOG_2, Cpu.AnalogChannel.ANALOG_3);
+            tracker.StartDemo();
+            //Thread.Sleep(5000);
+            //driver.StopDemo();
+            
             
             //activate event class that responds to gyroscope update
             //var gyroevent = new GyroEventTester();
@@ -33,46 +38,71 @@ namespace DemoSat16
 
     }
 
-    public class MotorDriver {
+    public class LightTracker {
 
-        private readonly WorkItem _panAction;
-        private readonly WorkItem _tiltAction;
+        private const int Tolerance = 0;
+        private const int DelayTime = 10;
 
-        private Servo _panServo;
-        private Servo _tiltServo;
+        private readonly WorkItem _trackAction;
 
-        public MotorDriver(Cpu.PWMChannel panPin, Cpu.PWMChannel tiltPin) {
+        private readonly Servo _panServo;
+        private readonly Servo _tiltServo;
+
+        private readonly AnalogInput photoCellTL;
+        private readonly AnalogInput photoCellTR;
+        private readonly AnalogInput photoCellBL;
+        private readonly AnalogInput photoCellBR;
+
+        public LightTracker(Cpu.PWMChannel panPin, Cpu.PWMChannel tiltPin, Cpu.AnalogChannel topLeftPhotocell, Cpu.AnalogChannel topRightPhotocell, Cpu.AnalogChannel bottomLeftPhotocell, Cpu.AnalogChannel bottomRightPhotocell) {
+
             _panServo = new Servo(panPin);
             _tiltServo = new Servo(tiltPin);
-            _panAction = new WorkItem(DoSomePanning, true);
-            _tiltAction = new WorkItem(DoSomeTilting, true);
+
+            photoCellTL = new AnalogInput(topLeftPhotocell);
+            photoCellTR = new AnalogInput(topRightPhotocell);
+            photoCellBL = new AnalogInput(bottomLeftPhotocell);
+            photoCellBR = new AnalogInput(bottomRightPhotocell);
+
+            _trackAction = new WorkItem(SearchForLight, true);
         }
 
         public void StartDemo() {
-            FlightComputer.Instance.Execute(_panAction);
-            FlightComputer.Instance.Execute(_tiltAction);
+            FlightComputer.Instance.Execute(_trackAction);
         }
 
         public void StopDemo() {
-            _panAction.SetRepeat(false);
-            _tiltAction.SetRepeat(false);
+            _trackAction.SetRepeat(false);
         }
 
-        private void DoSomePanning() {
-            for (int i = 0; i <= 180; i++) {
-                _panServo.Degree = i;
-                //Debug.Print("Yep");
-                Thread.Sleep(10);
+        private void SearchForLight() {
+
+            var topLeft = photoCellTL.Read();
+            var topRight = photoCellTR.Read();
+            var bottomLeft = photoCellBL.Read();
+            var bottomRight = photoCellBR.Read();
+
+            var topAvg = (topLeft + topRight)/2;
+            var bottomAvg = (bottomLeft + bottomRight)/2;
+            var leftAvg = (topLeft + bottomLeft)/2;
+            var rightAvg = (bottomRight + topRight)/2;
+
+            var dZ = topAvg - bottomAvg;
+            var dX = leftAvg - rightAvg;
+
+            if (-1*Tolerance > dZ || dZ > Tolerance) {
+                if (topAvg > bottomAvg) _tiltServo.Degree += 1;
+                else if (topAvg < bottomAvg) _tiltServo.Degree -= 1;
             }
-            _panServo.Inverted = !_panServo.Inverted;
+            if (-1*Tolerance > dX || dX > Tolerance) {
+                if (leftAvg > rightAvg) _panServo.Degree += 1;
+                else if (leftAvg < rightAvg) _panServo.Degree -= 1;
+            }
+
+            _panServo.disengage();
+            _tiltServo.disengage();
+            Thread.Sleep(DelayTime);
         }
 
-        private void DoSomeTilting() {
-            for (int i = 0; i <= 180; i++) {
-                _tiltServo.Degree = i;
-                Thread.Sleep(10);
-            }
-            _tiltServo.Inverted = !_tiltServo.Inverted;
-        }
+        
     }
 }

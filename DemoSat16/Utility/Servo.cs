@@ -10,6 +10,7 @@ namespace DemoSat16.Utility
         private readonly PWM _servoPin;
         private readonly int[] range = new int[2];
         public bool Inverted = false;
+        private double _last = 0;
 
         public Servo(Cpu.PWMChannel servoPin) {
 
@@ -23,7 +24,8 @@ namespace DemoSat16.Utility
             _servoPin.Dispose();
         }
 
-        private void disengage() {
+        public void disengage() {
+            Degree = 90;
             _servoPin.DutyCycle = 0;
         }
 
@@ -33,13 +35,15 @@ namespace DemoSat16.Utility
         }
 
         public double Degree {
+            get { return _last; }
             set {
                 if (value > 180) value = 180;
                 if (value < 0) value = 0;
                 if (Inverted) value = 180 - value;
                 _servoPin.Duration = (uint)map((long)value, 0, 180, range[0], range[1]);
-                Debug.Print(_servoPin.Duration.ToString());
+                Debug.Print(value.ToString());
                 _servoPin.Start();
+                _last = value;
 
             }
         }
