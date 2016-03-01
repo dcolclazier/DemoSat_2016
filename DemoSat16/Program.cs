@@ -125,17 +125,18 @@ namespace DemoSat16
                 _tiltServo.Degree = _lastY;
                 Thread.Sleep(5);
                 _tiltServo.disengage();
+                Debug.Print("Last Tilt Angle: " + _lastY);
             }
             if (-1 * Tolerance > dX || dX > Tolerance)
             {
                 if (leftAvg > rightAvg)
                 {
-                    Debug.Print("Moved left 1 degree.");
+                    //Debug.Print("Moved left 1 degree.");
                     _lastX--;
                 }
                 else if (leftAvg < rightAvg)
                 {
-                    Debug.Print("Moved right 1 degree.");
+                    //Debug.Print("Moved right 1 degree.");
                     _lastX++;
                 }
                 if (_lastX > 180) _lastX = 0;
@@ -145,7 +146,7 @@ namespace DemoSat16
                 Thread.Sleep(5);
                 _panServo.disengage();
 
-                Debug.Print("Last Heading: " + _lastX);
+                Debug.Print("Last Pan Angle: " + _lastX);
             }
             
         }
