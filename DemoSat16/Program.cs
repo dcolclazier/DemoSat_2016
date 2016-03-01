@@ -20,17 +20,21 @@ namespace DemoSat16
             //_bnoSensor = new Bno055();
 
             //create class that manages persistent work item that updates gyroscope data
-           // var Gyro = new GyroUpdater(_bnoSensor);
+            // var Gyro = new GyroUpdater(_bnoSensor);
             //Gyro.Start();
 
-            var tracker = new LightTracker(PWMChannels.PWM_PIN_D6,PWMChannels.PWM_PIN_D5, 
-                                        Cpu.AnalogChannel.ANALOG_0, Cpu.AnalogChannel.ANALOG_1, 
+            var tracker = new LightTracker(PWMChannels.PWM_PIN_D5, PWMChannels.PWM_PIN_D10,
+                                        Cpu.AnalogChannel.ANALOG_0, Cpu.AnalogChannel.ANALOG_1,
                                         Cpu.AnalogChannel.ANALOG_2, Cpu.AnalogChannel.ANALOG_3);
             tracker.StartDemo();
+
+            //var servo = new Servo(PWMChannels.PWM_PIN_D5,180);
+            //servo.Degree = 180;
+
             //Thread.Sleep(5000);
             //driver.StopDemo();
-            
-            
+
+
             //activate event class that responds to gyroscope update
             //var gyroevent = new GyroEventTester();
             //gyroevent.Start();
@@ -40,9 +44,11 @@ namespace DemoSat16
 
     public class LightTracker {
 
-        private const double Tolerance = 0.1;
+        private const double Tolerance = 0.005;
         private const int DelayTime = 10;
-
+        private double _lastX;
+        private double _lastY;
+        // private TestServo servo = null;
         private readonly WorkItem _trackAction;
 
         private readonly Servo _panServo;
@@ -56,8 +62,13 @@ namespace DemoSat16
 
         public LightTracker(Cpu.PWMChannel panPin, Cpu.PWMChannel tiltPin, Cpu.AnalogChannel topLeftPhotocell, Cpu.AnalogChannel topRightPhotocell, Cpu.AnalogChannel bottomLeftPhotocell, Cpu.AnalogChannel bottomRightPhotocell) {
 
-            _panServo = new Servo(panPin);
-            _tiltServo = new Servo(tiltPin);
+
+            _panServo = new Servo(panPin, 90) {Degree = 90};
+            _lastX = _panServo.Degree;
+
+            _tiltServo = new Servo(tiltPin, 90) {Degree = 90};
+            _lastY = _tiltServo.Degree;
+
 
             photoCellTL = new AnalogInput(topLeftPhotocell);
             photoCellTR = new AnalogInput(topRightPhotocell);
@@ -78,40 +89,67 @@ namespace DemoSat16
         }
 
         private void SearchForLight() {
-
+           
             var topLeft = photoCellTL.Read();
-            //Debug.Print("topLeft " + topLeft);
             var topRight = photoCellTR.Read();
-            //Debug.Print("topRight: " + topRight);
             var bottomLeft = photoCellBL.Read();
-           // Debug.Print("bottomLeft: " + bottomLeft);
             var bottomRight = photoCellBR.Read();
-            //Debug.Print("bottomRight: " + bottomRight);
 
-            var topAvg = (topLeft + topRight)/2;
-            var bottomAvg = (bottomLeft + bottomRight)/2;
-            var leftAvg = (topLeft + bottomLeft)/2;
-            var rightAvg = (bottomRight + topRight)/2;
+            var topAvg = (topLeft + topRight) / 2;
+            var bottomAvg = (bottomLeft + bottomRight) / 2;
+            var leftAvg = (topLeft + bottomLeft) / 2;
+            var rightAvg = (bottomRight + topRight) / 2;
 
             var dY = topAvg - bottomAvg;
             var dX = leftAvg - rightAvg;
             //Debug.Print("dX: " + dX);
-           // Debug.Print("dY: " + dY);
+            //Debug.Print("dY: " + dY);
 
-            if (-1*Tolerance > dY || dY > Tolerance) {
-                if (topAvg > bottomAvg) _tiltServo.Degree += 1;
-                else if (topAvg < bottomAvg) _tiltServo.Degree -= 1;
+            var speedPotValue = (int)(speedPot.Read() * 10);
+            
+            if (-1 * Tolerance > dY || dY > Tolerance)
+            {
+
+                if (topAvg > bottomAvg)
+                {
+                    //Debug.Print("Moved up 1 degree.");
+                    _lastY--;
+                }
+                else if (topAvg < bottomAvg)
+                {
+                    //Debug.Print("Moved down 1 degree.");
+                    _lastY++;
+                }
+                if(_lastY > 180) _lastY = 0; //if we went too far, start over
+                if (_lastY < 0) _lastY = 180;
+                _tiltServo.Degree = _lastY;
+                Thread.Sleep(5);
+                _tiltServo.disengage();
             }
-            if (-1*Tolerance > dX || dX > Tolerance) {
-                if (leftAvg > rightAvg) _panServo.Degree += 1;
-                else if (leftAvg < rightAvg) _panServo.Degree -= 1;
+            if (-1 * Tolerance > dX || dX > Tolerance)
+            {
+                if (leftAvg > rightAvg)
+                {
+                    Debug.Print("Moved left 1 degree.");
+                    _lastX--;
+                }
+                else if (leftAvg < rightAvg)
+                {
+                    Debug.Print("Moved right 1 degree.");
+                    _lastX++;
+                }
+                if (_lastX > 180) _lastX = 0;
+                if (_lastX < 0) _lastX = 180;
+
+                _panServo.Degree = _lastX;
+                Thread.Sleep(5);
+                _panServo.disengage();
+
+                Debug.Print("Last Heading: " + _lastX);
             }
-            var test = (speedPot.Read()*10);
-            _panServo.disengage();
-            _tiltServo.disengage();
-            Thread.Sleep((int)test + 5);
+            
         }
 
-        
+
     }
 }
