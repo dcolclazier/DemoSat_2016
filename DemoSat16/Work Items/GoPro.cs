@@ -7,8 +7,8 @@ namespace DemoSat16 {
 
         private readonly WorkItem _cameraAction;
         private readonly OutputPort _snapPin;
-        public GoPro(Cpu.Pin gpioPinD9) {
-            _snapPin = new OutputPort(gpioPinD9, true);
+        public GoPro(Cpu.Pin picturePin) {
+            _snapPin = new OutputPort(picturePin, true);
             _cameraAction = new WorkItem(PictureTime);    
         }
 
