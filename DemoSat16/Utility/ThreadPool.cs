@@ -19,7 +19,7 @@ namespace DemoSat16.Utility {
         private const int MAX_THREADS = 3;
 
         // This is the method the flight computer calls when you, the programmer, execute a work item.
-        static public void QueueWorkItem(WorkItem thingToQueue) {
+        public static void QueueWorkItem(WorkItem thingToQueue) {
             //first, add the work item to the queue of work items (if something came before, it comes first)
             lock (locker) {
                 PendingWorkItems.Enqueue(thingToQueue);
@@ -62,12 +62,12 @@ namespace DemoSat16.Utility {
                         nextWorkItemToExecute = PendingWorkItems.Dequeue() as WorkItem;
                     else {
                         //We weren't the first to check this; some other thread came and grabbed it, and there's no more pending work items..
-                        //Let the ThreadPool know about this, so that all thread workers (including this one) start waiting for something to be queued.
+                        //Let the ThreadPool know about this, so that all thread workers (including this one) Start waiting for something to be queued.
                         ThreadSync.Reset();
                     }
                 }
 
-                //If we didn't get a work item, start over, and wait for another work item to appear.
+                //If we didn't get a work item, Start over, and wait for another work item to appear.
                 if (nextWorkItemToExecute == null) continue;
 
                 //We got a work item! Let's try to take care of it.

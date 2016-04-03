@@ -1,27 +1,9 @@
 using System;
-using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.Netduino;
 
 namespace DemoSat16.Utility
 {
-    public class TestServo : IDisposable {
-
-        private SecretLabs.NETMF.Hardware.PWM pwm;
-
-        public TestServo(Cpu.Pin pwmPin) {
-            pwm = new SecretLabs.NETMF.Hardware.PWM(pwmPin);
-            pwm.SetDutyCycle(0);
-            pwm.SetPulse(20000,1300);
-            Debug.Print("Created the servo and set it to middle position!");
-            //pwm.SetDutyCycle(0);
-        }
-
-        public void Dispose() {
-            
-
-        }
-    }
     public class Servo : IDisposable
     {
         /// <summary>
@@ -207,7 +189,7 @@ namespace DemoSat16.Utility
     //                if (inverted)
     //                    value = 180 - value;
 
-    //                // Set duration "pulse" and start the servo. 
+    //                // Set duration "pulse" and Start the servo. 
     //                // Changes here are PWM.Duration and PWM.Start() instead of PWM.SetPulse().   
     //                _current = value;
     //                servo.Duration = (uint)map((long)_current, 0, 180, range[0], range[1]);
