@@ -2,7 +2,7 @@
 using DemoSat16.Utility;
 using Microsoft.SPOT.Hardware;
 
-namespace DemoSat16 {
+namespace DemoSat16.Work_Items {
     public class GoPro {
 
         private readonly WorkItem _cameraAction;

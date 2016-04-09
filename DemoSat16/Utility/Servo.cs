@@ -1,9 +1,84 @@
 using System;
+using System.Threading;
+using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.Netduino;
 
 namespace DemoSat16.Utility
 {
+
+    public class ContServo : IDisposable {
+
+        private PWM servo;
+        private int _leftTicksTaken;
+        private int _rightTicksTaken;
+
+        private int _maxClockwise = 1300;
+        private int _maxCounterClockwise = 1700;
+
+        public int get_ticks() {
+            return _rightTicksTaken - _leftTicksTaken;
+        }
+
+        public ContServo(Cpu.PWMChannel servo_pin) {
+            servo = new PWM(servo_pin, 20, 0, false);
+            servo.Start();
+
+
+        }
+
+        public void go_to_zero() {
+            int test = -get_ticks();
+            if (test > 0) {
+                for (int i = 0; i < test; i++) {
+                    go_clockwise_one_tick();
+                }
+            }
+            else if (test < 0) {
+                for (int i = 0; i < -test; i++) {
+                    go_counterclockwise_one_tick();
+                }
+            }
+
+        }
+
+
+        public void go_clockwise_one_tick() {
+            servo.Duration = (uint)1300;
+            servo.Start();
+            Thread.Sleep(200);
+            servo.Stop();
+            Thread.Sleep(200);
+            _rightTicksTaken++;
+
+            Debug.Print("Right ticks taken " + _rightTicksTaken);
+            Debug.Print("Total Tick count: " + get_ticks());
+        }
+
+        public void go_counterclockwise_one_tick() {
+            servo.Duration = (uint)2100;
+            servo.Start();
+            Thread.Sleep(200);
+            servo.Stop();
+            Thread.Sleep(200);
+            _leftTicksTaken++;
+            Debug.Print("Left ticks taken " + _leftTicksTaken);
+            Debug.Print("Total Tick count: " + get_ticks());
+        }
+
+        public void Dispose() {
+            throw new NotImplementedException();
+        }
+        public double map( double s, double a1, double a2, double b1, double b2) {
+            return b1 + (s - a1)*(b2 - b1)/(a2 - a1);
+        }
+
+        public void reset_ticks() {
+            _leftTicksTaken = 0;
+            _rightTicksTaken = 0;
+        }
+
+    }
     public class Servo : IDisposable
     {
         /// <summary>

@@ -2,6 +2,7 @@ using System.Threading;
 using DemoSat16.Utility;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
+using System;
 
 namespace DemoSat16 {
     public class LightTracker {
@@ -11,7 +12,7 @@ namespace DemoSat16 {
         // private TestServo servo = null;
         private readonly WorkItem _trackAction;
 
-        private readonly Servo _panServo;
+        private readonly ContServo _panServo;
         private readonly Servo _tiltServo;
 
         private readonly AnalogInput photoCellTL;
@@ -33,16 +34,18 @@ namespace DemoSat16 {
 
         private bool _foundX = false;
         private bool _foundY = false;
+        private double _brightestXTick;
 
         private enum Direction {  up, down, left, right, none, error }
 
         public LightTracker(Cpu.PWMChannel panPin, Cpu.PWMChannel tiltPin, Cpu.AnalogChannel topLeftPhotocell, Cpu.AnalogChannel topRightPhotocell, Cpu.AnalogChannel bottomLeftPhotocell, Cpu.AnalogChannel bottomRightPhotocell) {
 
 
-            _panServo = new Servo(panPin, 90) {Degree = 90};
-            _lastX = _panServo.Degree;
+            _panServo = new ContServo(panPin);
+            _panServo.reset_ticks();
 
-            _tiltServo = new Servo(tiltPin, 90) {Degree = 90};
+
+            _tiltServo = new Servo(tiltPin, 150) {Degree = 150};
             _lastY = _tiltServo.Degree;
 
 
@@ -68,6 +71,11 @@ namespace DemoSat16 {
             _topRight = photoCellTR.Read();
             _bottomLeft = photoCellBL.Read();
             _bottomRight = photoCellBR.Read();
+
+            Debug.Print("TL: " + _topLeft);
+            Debug.Print("TR: " + _topRight);
+            Debug.Print("BL: " + _bottomLeft);
+            Debug.Print("TR: " + _bottomRight);
         }
         private double getCurrentBrightness(bool update) {
            
@@ -124,8 +132,8 @@ namespace DemoSat16 {
                     break;
 
             }
-            if (_lastY > 180) _lastY = 0; //if we went too far, Start over
-            if (_lastY < 0) _lastY = 180;
+            if (_lastY > 160) _lastY = 90; //if we went too far, Start over
+            if (_lastY < 90) _lastY = 160;
 
             _tiltServo.Degree = _lastY;
             Thread.Sleep(5);
@@ -136,10 +144,12 @@ namespace DemoSat16 {
 
             switch (getXDirection(false)) {
                 case Direction.left:
-                    _lastX--;
+                   // _lastX--;
+                    _panServo.go_counterclockwise_one_tick();
                     break;
                 case Direction.right:
-                    _lastX++;
+                    _panServo.go_clockwise_one_tick();
+                  //  _lastX++;
                     break;
                 case Direction.none:
                     _foundX = true;
@@ -148,12 +158,20 @@ namespace DemoSat16 {
                     Debug.Print("Something went wrong in the tilt logic - returned Direction.Error");
                     break;
             }
-            if (_lastX > 360) _lastX = 0;
-            if (_lastX < 0) _lastX = 360;
+            int ticks = _panServo.get_ticks();
+            Debug.Print("Ticks: " + ticks);
+            if (System.Math.Abs(ticks) > 8) {
+                _panServo.go_to_zero();
+                for (int i = 0; i < 8; i++) {
+                    _panServo.go_counterclockwise_one_tick();
+                }
+            }
+            //if (_lastX > 360) _lastX = 0;
+            //if (_lastX < 0) _lastX = 360;
 
-            _panServo.Degree = _lastX;
-            Thread.Sleep(5);
-            _panServo.disengage();
+            //_panServo.Degree = _lastX;
+            //Thread.Sleep(5);
+            //_panServo.disengage();
 
         }
 
@@ -178,12 +196,23 @@ namespace DemoSat16 {
             //    move to that brightness and wait 5 seconds (allows time for picture taking) before continuing
             if (getCurrentBrightness(true) < _maxBrightness - .5) { //.5 is a tolerance - may not need...
                 
-                _lastX = _brightestX;
+                //_lastX = _brightestX;
                 _lastY = _brightestY;
 
-                _panServo.Degree = _lastX;
-                Thread.Sleep(5);
-                _panServo.disengage();
+                _panServo.go_to_zero();
+                if (_brightestXTick > 0) {
+                    for (int i = 0; i < _brightestXTick; i++) {
+                        _panServo.go_clockwise_one_tick();
+                    }
+                }
+                else if (_brightestXTick < 0) {
+                    for (int i = 0; i < -_brightestXTick; i++) {
+                        _panServo.go_counterclockwise_one_tick();
+                    }
+                }
+                //_panServo.Degree = _lastX;
+                //Thread.Sleep(5);
+                //_panServo.disengage();
 
                 _tiltServo.Degree = _lastY;
                 Thread.Sleep(5);
@@ -199,12 +228,16 @@ namespace DemoSat16 {
 
         private void CheckBrightness() {
             var currentBrightness = getCurrentBrightness(false);
-            if (currentBrightness > _maxBrightness)
-            {
-                _brightestX = _lastX;
+            if (currentBrightness > _maxBrightness) {
+                _brightestXTick = _panServo.get_ticks();
+                //_brightestX = _lastX;
                 _brightestY = _lastY;
                 _maxBrightness = currentBrightness;
             }
+
+            Debug.Print("Current Brightest location:" + _lastX);
+            Debug.Print("Current Max Brightness:" + _maxBrightness);
+
         }
     }
 }
