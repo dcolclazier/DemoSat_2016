@@ -159,10 +159,11 @@ namespace DemoSat16 {
                     break;
             }
             int ticks = _panServo.get_ticks();
+            Debug.Print("GOT HERE!!!!");
             Debug.Print("Ticks: " + ticks);
-            if (System.Math.Abs(ticks) > 8) {
+            if (System.Math.Abs(ticks) > 80) {
                 _panServo.go_to_zero();
-                for (int i = 0; i < 8; i++) {
+                for (int i = 0; i < 80; i++) {
                     _panServo.go_counterclockwise_one_tick();
                 }
             }

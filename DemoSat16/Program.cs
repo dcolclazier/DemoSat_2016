@@ -19,8 +19,8 @@ namespace DemoSat16
 
 
             var tracker = new LightTracker(PWMChannels.PWM_PIN_D5, PWMChannels.PWM_PIN_D10,
-                                        Cpu.AnalogChannel.ANALOG_0, Cpu.AnalogChannel.ANALOG_1,
-                                        Cpu.AnalogChannel.ANALOG_2, Cpu.AnalogChannel.ANALOG_3);
+                                        Cpu.AnalogChannel.ANALOG_2, Cpu.AnalogChannel.ANALOG_0,
+                                        Cpu.AnalogChannel.ANALOG_3, Cpu.AnalogChannel.ANALOG_1);
             tracker.Start();
 
 

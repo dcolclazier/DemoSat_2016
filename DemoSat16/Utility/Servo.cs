@@ -46,24 +46,24 @@ namespace DemoSat16.Utility
         public void go_clockwise_one_tick() {
             servo.Duration = (uint)1300;
             servo.Start();
-            Thread.Sleep(200);
+            Thread.Sleep(20);
             servo.Stop();
             Thread.Sleep(200);
             _rightTicksTaken++;
 
-            Debug.Print("Right ticks taken " + _rightTicksTaken);
-            Debug.Print("Total Tick count: " + get_ticks());
+           // Debug.Print("Right ticks taken " + _rightTicksTaken);
+           // Debug.Print("Total Tick count: " + get_ticks());
         }
 
         public void go_counterclockwise_one_tick() {
             servo.Duration = (uint)2100;
             servo.Start();
-            Thread.Sleep(200);
+            Thread.Sleep(20);
             servo.Stop();
             Thread.Sleep(200);
             _leftTicksTaken++;
-            Debug.Print("Left ticks taken " + _leftTicksTaken);
-            Debug.Print("Total Tick count: " + get_ticks());
+           // Debug.Print("Left ticks taken " + _leftTicksTaken);
+           // Debug.Print("Total Tick count: " + get_ticks());
         }
 
         public void Dispose() {
